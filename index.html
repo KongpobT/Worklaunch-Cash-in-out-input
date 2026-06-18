@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transaction Manager</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    
+
     <!-- Flatpickr for Date Formatting -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
@@ -15,9 +16,10 @@
     <!-- Fuse.js for Fuzzy Search -->
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 </head>
+
 <body>
     <div class="glass-container large-container">
-        
+
         <div class="header-section">
             <div class="title-area">
                 <h1>Transactions</h1>
@@ -26,9 +28,20 @@
             <div class="tabs">
                 <button class="tab-btn active" data-tab="add-tab">Add Transaction</button>
                 <button class="tab-btn" data-tab="history-tab">History</button>
+                <a href="https://docs.google.com/spreadsheets/d/1Zg5q5LS8Oj1IIbXkVy_2c6BfQr8SvldHJtyfWPnUXQU/edit?gid=399413726#gid=399413726"
+                    target="_blank" class="secondary-btn" title="Open Google Sheet"
+                    style="text-decoration: none; display: flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                    Sheet
+                </a>
             </div>
         </div>
-        
+
         <!-- Add Transaction Tab -->
         <div id="add-tab" class="tab-content active">
             <form id="transaction-form">
@@ -94,14 +107,16 @@
                     <!-- Row 4 -->
                     <div class="input-group full-width" style="position: relative;">
                         <label for="Vendor">Vendor</label>
-                        <input type="text" id="Vendor" name="Vendor" placeholder="e.g. Google, Grab, Amazon" required autocomplete="off">
+                        <input type="text" id="Vendor" name="Vendor" placeholder="e.g. Google, Grab, Amazon" required
+                            autocomplete="off">
                         <div id="vendor-suggestions" class="suggestions-box hidden"></div>
                     </div>
 
                     <!-- Row 5 -->
                     <div class="input-group full-width">
                         <label for="Description">Description</label>
-                        <input type="text" id="Description" name="Description" placeholder="Brief description of the transaction" required>
+                        <input type="text" id="Description" name="Description"
+                            placeholder="Brief description of the transaction" required>
                     </div>
 
                     <!-- Row 6 -->
@@ -143,11 +158,13 @@
                     <!-- Row 8 -->
                     <div class="input-group">
                         <label for="ReceiptRef">Receipt Ref</label>
-                        <input type="text" id="ReceiptRef" name="ReceiptRef" placeholder="Link or ID to receipt" value="None">
+                        <input type="text" id="ReceiptRef" name="ReceiptRef" placeholder="Link or ID to receipt"
+                            value="None">
                     </div>
                     <div class="input-group">
                         <label for="ReceiptFile">Upload Receipt</label>
-                        <input type="file" id="ReceiptFile" name="ReceiptFile" accept="image/*,.pdf" style="padding: 0.5rem 1rem; cursor: pointer;">
+                        <input type="file" id="ReceiptFile" name="ReceiptFile" accept="image/*,.pdf"
+                            style="padding: 0.5rem 1rem; cursor: pointer;">
                     </div>
                 </div>
 
@@ -157,7 +174,7 @@
                         <div id="loading-spinner" class="spinner hidden"></div>
                     </button>
                 </div>
-                
+
                 <div id="add-notification" class="notification hidden"></div>
             </form>
         </div>
@@ -214,4 +231,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>
