@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transaction Manager</title>
+
+    <!-- Favicon -->
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236366f1%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><rect x=%222%22 y=%225%22 width=%2220%22 height=%2214%22 rx=%222%22 ry=%222%22></rect><line x1=%222%22 y1=%2210%22 x2=%2222%22 y2=%2210%22></line></svg>">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 
@@ -15,6 +20,9 @@
 
     <!-- Fuse.js for Fuzzy Search -->
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+
+    <!-- PDF.js for parsing PDF receipts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 
 <body>
@@ -39,6 +47,15 @@
                     </svg>
                     Sheet
                 </a>
+                <button id="settings-btn" class="secondary-btn" title="AI Settings" style="padding: 0.5rem;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                        </path>
+                    </svg>
+                </button>
             </div>
         </div>
 
@@ -161,10 +178,24 @@
                         <input type="text" id="ReceiptRef" name="ReceiptRef" placeholder="Link or ID to receipt"
                             value="None">
                     </div>
-                    <div class="input-group">
+                    <div class="input-group" style="display: flex; flex-direction: column;">
                         <label for="ReceiptFile">Upload Receipt</label>
-                        <input type="file" id="ReceiptFile" name="ReceiptFile" accept="image/*,.pdf"
-                            style="padding: 0.5rem 1rem; cursor: pointer;">
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="file" id="ReceiptFile" name="ReceiptFile" accept="image/*,.pdf"
+                                style="padding: 0.5rem 1rem; cursor: pointer; flex-grow: 1;">
+                            <button type="button" id="scan-receipt-btn" class="primary-btn hidden"
+                                style="padding: 0.5rem 1rem; flex-shrink: 0; background: linear-gradient(135deg, #8b5cf6, #3b82f6);">
+                                <span id="scan-btn-text">✨ Scan</span>
+                                <div id="scan-spinner" class="spinner hidden"
+                                    style="width: 14px; height: 14px; border-width: 2px;"></div>
+                            </button>
+                        </div>
+                        <div id="file-preview-container" class="hidden" style="margin-top: 1rem; width: 100%;">
+                            <img id="image-preview" src="" alt="Receipt Preview" class="hidden"
+                                style="max-width: 100%; max-height: 300px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); object-fit: contain; background: rgba(0,0,0,0.2);">
+                            <iframe id="pdf-preview" src="" class="hidden"
+                                style="width: 100%; height: 300px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(0,0,0,0.2);"></iframe>
+                        </div>
                     </div>
                 </div>
 
@@ -227,6 +258,51 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content glass-container">
+            <div class="modal-header">
+                <h2>AI Settings</h2>
+                <button id="close-settings-btn" class="icon-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 1rem;">Enter your Google Gemini API key to
+                    enable magic receipt scanning for free. You can get one easily at <a
+                        href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #60a5fa;">Google AI
+                        Studio</a>.</p>
+                <div class="input-group">
+                    <label for="gemini-api-key">Gemini API Key</label>
+                    <input type="password" id="gemini-api-key" placeholder="AIzaSy...">
+                </div>
+            </div>
+            <div class="modal-footer" style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
+                <button id="save-settings-btn" class="primary-btn">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal hidden">
+        <div class="modal-content glass-container" style="max-width: 400px; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+            <h2 style="margin-bottom: 0.5rem;">Delete Transaction?</h2>
+            <p style="color: #94a3b8; margin-bottom: 1.5rem;">This action cannot be undone. It will be permanently
+                removed from your Google Sheet.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button id="cancel-delete-btn" class="secondary-btn" style="flex: 1;">Cancel</button>
+                <button id="confirm-delete-btn" class="primary-btn"
+                    style="flex: 1; background: #ef4444; border-color: #ef4444; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);">Yes,
+                    Delete</button>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
